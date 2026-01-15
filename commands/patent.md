@@ -6,6 +6,45 @@ description: 自动生成专利申请技术交底书
 
 你正在调用专利申请技术交底书自动化生成技能。本技能将帮助你完成从创新想法到完整交底书的整个过程。
 
+## 审核团队配置
+
+本技能支持5人专家团队审核，可配置是否启用：
+
+### 启用审核（默认）
+
+```
+# 使用完整审核流程
+/patent
+# 按提示选择：启用审核团队
+```
+
+### 禁用审核
+
+```
+# 快速模式，跳过审核
+/patent
+# 按提示选择：快速模式（无审核）
+```
+
+### 审核团队配置
+
+| 角色 | 数量 | 权重 | 职责 |
+|------|------|------|------|
+| 资深技术专家 | 1 | 2票 | 技术可行性、创新性 |
+| 技术专家 | 1 | 1票 | 技术细节、实施可行性 |
+| 法律专家 | 1 | 1票 | 法律合规性 |
+| 资深专利代理人 | 1 | 2票 | 保护范围、专利策略 |
+| 专利代理人 | 1 | 1票 | 文档规范性、格式 |
+
+**总票数**: 7票（加权）
+
+### 投票阈值
+
+| 问题类型 | 通过阈值 | 说明 |
+|---------|---------|------|
+| 重要问题 | ≥6/7票 | 技术方案错误、法律违规、保护范围问题 |
+| 次要问题 | ≥5/7票 | 格式规范、措辞优化、附图改进 |
+
 ## 状态管理（可选）
 
 本技能支持使用专用状态文件来跟踪生成进度，提供更可靠的状态管理。
@@ -246,6 +285,9 @@ Glob: [0-9][0-9]_*.md
 - **创新想法 (idea)**: 请描述你的创新内容或技术改进思路
 - **所属技术领域 (technical_field)**: 这项技术属于哪个领域？
 - **关键词 (keywords)**: 可选，用于搜索相关技术的关键词
+- **是否启用审核团队 (enable_review)**: 是否启用5人专家团队审核？
+  - 选项：[启用审核（推荐）] [快速模式（无审核）]
+  - 默认：启用审核
 
 ### 2. 按顺序调用子代理
 
@@ -274,17 +316,38 @@ Glob: [0-9][0-9]_*.md
 - implementation-writer(起始编号=4) → 返回生成2幅图 → current_figure_number = 6
 ```
 
-**步骤 2.1 - 2.9：调用各章节生成子代理**
+**步骤 2.1 - 2.9：调用各章节生成子代理 + 审核流程**
 
-对每个需要执行的子代理，使用 Task 工具调用：
+本步骤将章节生成与审核流程整合，分为5个阶段：
+
+**步骤 2.1：生成章节01-02 + 预审**
 
 ```
+# 生成章节 01-02
+使用 Task 工具调用：
 1. title-generator        - 生成发明名称（如果 01_发明名称.md 不存在）
    参数：idea（创新想法）
 
 2. field-analyzer         - 分析所属技术领域（如果 02_技术领域.md 不存在）
    参数：idea, technical_field
 
+# 预审1（审核章节01-02）
+如果启用审核，使用 Task 工具调用 review-coordinator：
+- review_stage: "pre1"
+- chapters: ["01", "02"]
+- patent_type: {patent_type}
+
+如果审核未通过：
+- 调用 dispute-resolver 处理争议
+- 等待用户决策
+- 根据决策继续或重新生成
+```
+
+**步骤 2.2：生成章节03-05 + 中期审核1**
+
+```
+# 生成章节 03-05
+使用 Task 工具调用：
 3. background-researcher  - 调研背景技术（如果 03_背景技术.md 不存在）
    参数：patent_type, idea, keywords, starting_figure_number={current_figure_number}
    使用：web-search-prime, google-patents-mcp, exa, web-reader
@@ -302,6 +365,25 @@ Glob: [0-9][0-9]_*.md
    返回：实际生成的附图数量（可能为0）
    更新：current_figure_number += diagrams_generated
 
+# 中期审核1（审核章节03-05，重要问题）
+如果启用审核，使用 Task 工具调用 review-coordinator：
+- review_stage: "mid1"
+- chapters: ["03", "04", "05"]
+- patent_type: {patent_type}
+
+重要问题阈值：需 6/7 票通过
+
+如果审核未通过：
+- 调用 dispute-resolver 处理争议
+- 等待用户决策
+- 根据决策继续或重新生成
+```
+
+**步骤 2.3：生成章节06-07 + 中期审核2**
+
+```
+# 生成章节 06-07
+使用 Task 工具调用：
 6. benefit-analyzer       - 分析有益效果（如果 06_有益效果.md 不存在）
    参数：patent_type, solution_content, starting_figure_number={current_figure_number}
    返回：实际生成的附图数量（可能为0）
@@ -313,29 +395,67 @@ Glob: [0-9][0-9]_*.md
    返回：实际生成的附图数量（可能为0）
    更新：current_figure_number += diagrams_generated
 
+# 中期审核2（审核章节06-07）
+如果启用审核，使用 Task 工具调用 review-coordinator：
+- review_stage: "mid2"
+- chapters: ["06", "07"]
+- patent_type: {patent_type}
+
+如果审核未通过：
+- 调用 dispute-resolver 处理争议
+- 等待用户决策
+- 根据决策继续或重新生成
+```
+
+**步骤 2.4：生成章节08-09 + 最终审核**
+
+```
+# 生成章节 08-09
+使用 Task 工具调用：
 8. protection-extractor   - 提炼保护点（如果 08_专利保护点.md 不存在）
    参数：idea, solution_content
 
 9. reference-collector    - 收集参考资料（如果 09_参考资料.md 不存在）
    使用：google-patents-mcp, web-search-prime, web-reader
+
+# 最终审核（审核所有章节 + 整体质量）
+如果启用审核，使用 Task 工具调用 review-coordinator：
+- review_stage: "final"
+- chapters: ["01", "02", "03", "04", "05", "06", "07", "08", "09"]
+- patent_type: {patent_type}
+
+生成审核汇总报告
+
+如果审核未通过：
+- 调用 dispute-resolver 处理争议
+- 等待用户决策
+- 根据决策继续或重新生成
 ```
 
 **跳过逻辑示例**：
 
-如果检测到 `01_发明名称.md` 已存在，则跳过 title-generator：
+如果检测到某些章节文件已存在，则跳过对应的生成器和审核：
 ```
 ✓ 01_发明名称.md 已存在，跳过 title-generator
-→ 执行 field-analyzer...
+✓ 02_技术领域.md 已存在，跳过 field-analyzer
+→ 如果章节01-02都存在，直接进入预审或跳过预审
+→ 执行 background-researcher...
 ```
 
-**步骤 2.10：调用文档整合子代理**
+**步骤 2.5：调用文档整合子代理**
 
-所有必需章节生成完成后，调用 document-integrator：
+所有必需章节生成且审核通过后，调用 document-integrator：
 
 ```
 10. document-integrator   - 整合所有章节生成完整交底书
     输入：patent_type（专利类型）
     输出：Markdown 格式的完整交底书（附图已嵌入在各章节中）
+```
+
+**注意**：
+- 如果禁用审核，则跳过所有审核步骤，直接执行文档整合
+- 如果某个阶段的审核未通过，需要修复问题后才能进入下一阶段
+- 审核状态会保存在状态文件中，支持断点续传
 ```
 
 ### 3. 输出结果
