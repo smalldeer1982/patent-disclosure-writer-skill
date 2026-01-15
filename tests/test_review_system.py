@@ -3,47 +3,63 @@
 """
 
 import pytest
-import json
 from pathlib import Path
 import sys
-from pathlib import Path as SysPath
+from unittest.mock import patch
 
 # 添加技能脚本目录到 Python 路径
-skill_scripts_path = SysPath(__file__).parent.parent / ".claude" / "skills" / "patent-disclosure-writer" / "scripts"
+skill_scripts_path = Path(__file__).parent.parent / ".claude" / "skills" / "patent-disclosure-writer" / "scripts"
 sys.path.insert(0, str(skill_scripts_path))
 
-# 禁用 review_state_manager 的 UTF-8 编码包装（避免与 pytest 冲突）
-sys.platform = "linux"
+# Constants for test file paths
+TEST_STAGE_ID = "pre1"
+TEST_STATUS_FILE = Path(f".review-status-{TEST_STAGE_ID}.json")
+
+
+@pytest.fixture(scope="session", autouse=True)
+def import_review_state_manager():
+    """
+    Import review_state_manager with mocked platform to prevent UTF-8 wrapping.
+    This must happen at session scope before any tests run.
+    """
+    # Mock platform to prevent UTF-8 stdout/stderr wrapping
+    with patch.object(sys, 'platform', 'linux'):
+        import review_state_manager
+        # Store in sys.modules so tests can import it normally
+        sys.modules['review_state_manager'] = review_state_manager
+        yield review_state_manager
+
+
+@pytest.fixture
+def review_state_file():
+    """Create a review state file for testing, cleanup after."""
+    import review_state_manager
+
+    state = review_state_manager.init_status(TEST_STAGE_ID, ["01", "02"])
+    yield state
+    # Cleanup - use missing_ok=True to avoid errors if test failed
+    TEST_STATUS_FILE.unlink(missing_ok=True)
 
 
 class TestReviewCoordinator:
     """测试审核协调器"""
 
-    def test_coordinator_initializes_status(self):
+    def test_coordinator_initializes_status(self, review_state_file):
         """测试协调器初始化状态"""
-        import review_state_manager
+        state = review_state_file
 
-        state = review_state_manager.init_status("pre1", ["01", "02"])
-
-        assert state.stage == "pre1"
+        assert state.stage == TEST_STAGE_ID
         assert state.chapters == ["01", "02"]
         assert state.status == "pending"
 
-        # 清理
-        Path(".review-status-pre1.json").unlink()
-
-    def test_coordinator_reads_status(self):
+    def test_coordinator_reads_status(self, review_state_file):
         """测试协调器读取状态"""
         import review_state_manager
 
-        review_state_manager.init_status("pre1", ["01", "02"])
-        state = review_state_manager.read_status("pre1")
+        state = review_state_manager.read_status(TEST_STAGE_ID)
 
         assert state is not None
-        assert state.stage == "pre1"
-
-        # 清理
-        Path(".review-status-pre1.json").unlink()
+        assert state.stage == TEST_STAGE_ID
 
 
 class TestExpertAgents:
@@ -98,14 +114,6 @@ class TestVotingMechanism:
                 total += vote_weights[expert]
 
         assert total == 7  # 全部赞成 = 7票
-
-    def test_majority_threshold(self):
-        """测试多数阈值"""
-        # 重要问题需 6/7 票
-        assert 6 >= 6
-
-        # 次要问题需 5/7 票
-        assert 5 >= 5
 
 
 class TestModificationApplier:
