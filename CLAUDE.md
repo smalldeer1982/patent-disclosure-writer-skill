@@ -2,6 +2,10 @@
 
 This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
+## Communication
+
+- **使用中文回答问题和进行所有沟通**
+
 ## Project Overview
 
 This is a **Claude Code skill** that automatically generates Chinese patent disclosure documents (专利申请技术交底书) compliant with the IP-JL-027 standard. Users provide an innovative idea, and the skill performs patent retrieval, technical analysis, figure generation, and document writing.
@@ -153,9 +157,16 @@ When expert votes fail thresholds:
 - 12 standard diagram types (flowcharts, sequence diagrams, architecture diagrams, protocol format diagrams)
 - Automatic diagram validator checks syntax
 
+### Script Editing
+- **修复脚本时优先在原文件上编辑，非必需不新建脚本**
+
 ## Windows Compatibility
 
-All scripts use UTF-8 encoding and are tested on Windows. Use `python` command (not `python3`).
+- **开发环境为 Windows 系统**
+- 所有脚本使用 UTF-8 编码
+- Python 脚本使用 `python` 命令（非 `python3`）
+- **BAT 脚本不允许使用中文**（避免编码问题）
+- 路径分隔符使用反斜杠 `\` 或正斜杠 `/` 均可
 
 ## Documentation Structure
 
