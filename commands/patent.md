@@ -211,6 +211,149 @@ python .claude/skills/patent-disclosure-writer/scripts/state_manager.py --reset
 
 **附图生成方式**：附图已由各章节生成器在生成章节内容时根据需要动态生成并嵌入到章节文件中（以 Mermaid 代码块形式），无需单独的附图生成步骤。
 
+## 执行流程图
+
+### 完整流程（启用审核模式）
+
+```mermaid
+graph TB
+    Start([开始]) --> Detect[检测已有章节文件]
+    Detect --> Choice1{是否有已存在<br/>的章节文件?}
+
+    Choice1 -->|无文件| Collect[收集用户输入]
+    Choice1 -->|有文件| AskUser[询问用户意图]
+    AskUser --> Collect
+    AskUser -->|选择继续| Determine[确定需执行的子代理]
+
+    Collect --> AskReview{是否启用<br/>审核团队?}
+    AskReview -->|启用| ReviewMode[审核模式]
+    AskReview -->|禁用| QuickMode[快速模式]
+
+    Determine --> ReviewMode
+
+    ReviewMode --> Stage1[阶段1: 生成章节01-02]
+    Stage1 --> PreReview{预审1}
+    PreReview -->|通过| Stage2[阶段2: 生成章节03-05]
+    PreReview -->|未通过| Dispute1[争议处理]
+    Dispute1 --> Stage1
+
+    Stage2 --> MidReview1{中期审核1<br/>重要问题≥6/7票}
+    MidReview1 -->|通过| Stage3[阶段3: 生成章节06-07]
+    MidReview1 -->|未通过| Dispute2[争议处理]
+    Dispute2 --> Stage2
+
+    Stage3 --> MidReview2{中期审核2<br/>次要问题≥5/7票}
+    MidReview2 -->|通过| Stage4[阶段4: 生成章节08-09]
+    MidReview2 -->|未通过| Dispute3[争议处理]
+    Dispute3 --> Stage3
+
+    Stage4 --> FinalReview{最终审核<br/>审核所有章节}
+    FinalReview -->|通过| Summary[生成审核汇总报告]
+    FinalReview -->|未通过| Dispute4[争议处理]
+    Dispute4 --> Stage4
+
+    QuickMode --> GenAll[生成所有章节01-09]
+    GenAll --> Integrate
+
+    Summary --> Integrate[文档整合]
+    Integrate --> Output([输出完整交底书])
+    Output --> End([结束])
+
+    style PreReview fill:#e1f5ff
+    style MidReview1 fill:#fff4e1
+    style MidReview2 fill:#fff4e1
+    style FinalReview fill:#ffe1f5
+    style Dispute1 fill:#ffe1e1
+    style Dispute2 fill:#ffe1e1
+    style Dispute3 fill:#ffe1e1
+    style Dispute4 fill:#ffe1e1
+```
+
+### 快速模式流程（无审核）
+
+```mermaid
+graph LR
+    Start([开始]) --> Detect[检测已有章节文件]
+    Detect --> Collect[收集用户输入]
+    Collect --> Gen[生成所有章节01-09]
+    Gen --> Integrate[文档整合]
+    Integrate --> Output([输出完整交底书])
+    Output --> End([结束])
+
+    style Gen fill:#e8f5e9
+    style Integrate fill:#e8f5e9
+```
+
+### 审核流程详情
+
+| 阶段 | 审核章节 | 投票阈值 | 说明 |
+|------|---------|---------|------|
+| **预审1** | 01-02 | 简单多数 | 初始质量检查 |
+| **中期审核1** | 03-05 | ≥6/7票 | 重要问题严格审查 |
+| **中期审核2** | 06-07 | ≥5/7票 | 次要问题适度审查 |
+| **最终审核** | 01-09 | ≥6/7票 | 整体质量严格把关 |
+
+### 争议处理流程
+
+```mermaid
+graph TB
+    VoteFail[投票未通过] --> Generate[生成争议报告]
+    Generate --> Show{展示争议报告}
+
+    Show --> ShowMajority[多数方意见]
+    Show --> ShowMinority[少数方意见]
+    Show --> Compare[方案对比]
+    Show --> Recommend[推荐方案]
+
+    ShowMajority --> Decision[用户决策]
+    ShowMinority --> Decision
+    Compare --> Decision
+    Recommend --> Decision
+
+    Decision --> D1[采纳多数方意见]
+    Decision --> D2[采纳少数方意见]
+    Decision --> D3[采纳推荐方案]
+    Decision --> D4[要求重新讨论]
+    Decision --> D5[自行修改]
+
+    D1 --> Apply[应用修改]
+    D2 --> Apply
+    D3 --> Apply
+    D4 --> ReReview[重新审核]
+    D5 --> Apply
+
+    ReReview --> VoteFail
+
+    style VoteFail fill:#ffe1e1
+    style Show fill:#fff4e1
+    style Decision fill:#e1f5ff
+```
+
+### 状态管理流程
+
+```mermaid
+graph LR
+    Start([开始生成]) --> Init[初始化状态<br/>.patent-status.json]
+    Init --> GenChapter[生成章节]
+    GenChapter --> Update[更新状态]
+    Update --> Check{检查状态}
+
+    Check -->|未完成| GenChapter
+    Check -->|已完成| Next[下一章节]
+    Check -->|失败| Error[记录错误]
+
+    Error --> Retry[重试处理]
+    Retry --> GenChapter
+
+    Next --> CheckAll{所有章节完成?}
+    CheckAll -->|否| GenChapter
+    CheckAll -->|是| Final[最终状态]
+
+    style Init fill:#e1f5ff
+    style Update fill:#e8f5e9
+    style Error fill:#ffe1e1
+```
+
 ## 执行步骤
 
 请按以下步骤执行：
