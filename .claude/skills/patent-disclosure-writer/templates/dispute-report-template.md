@@ -28,7 +28,7 @@
 
 ## 推荐
 
-**推荐方案**: {{RECOMMENDED方案}}
+**推荐方案**: {{RECOMMENDED_SOLUTION}}
 
 **理由**: {{RECOMMENDATION_REASON}}
 
