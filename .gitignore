@@ -30,3 +30,5 @@ example_things/paten/
 *.docx
 !templates/*.docx
 /.claude/skills/skillforge
+nul
+**/__pycache__
