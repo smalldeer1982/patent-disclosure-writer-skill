@@ -8,25 +8,25 @@
 import json
 import sys
 from pathlib import Path
-from dataclasses import dataclass, asdict
-from typing import Optional, Dict, List
+from dataclasses import dataclass, field, asdict
+from typing import Optional, Dict, List, Any
+
+# 设置 UTF-8 编码输出（Windows 兼容）
+if sys.platform == "win32":
+    import io
+    sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding='utf-8', errors='replace')
+    sys.stderr = io.TextIOWrapper(sys.stderr.buffer, encoding='utf-8', errors='replace')
 
 @dataclass
 class ReviewState:
     """审核状态数据类"""
     version: str = "2.0.0"
     stage: str = ""
-    chapters: List[str] = None
+    chapters: List[str] = field(default_factory=list)
     status: str = "pending"  # pending, in_progress, completed, disputed
-    vote_result: Optional[Dict] = None
-    modifications: List[Dict] = None
+    vote_result: Optional[Dict[str, Any]] = None
+    modifications: List[Dict[str, Any]] = field(default_factory=list)
     timestamp: str = ""
-
-    def __post_init__(self):
-        if self.chapters is None:
-            self.chapters = []
-        if self.modifications is None:
-            self.modifications = []
 
 def get_status_file(stage: str) -> Path:
     """获取审核状态文件路径"""
