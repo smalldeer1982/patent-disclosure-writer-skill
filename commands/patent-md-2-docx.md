@@ -11,7 +11,7 @@ arguments:
 
 # 专利交底书 Markdown 转 DOCX
 
-你正在调用专利交底书 Markdown 转 DOCX 转换命令。本命令将已有的 Markdown 格式交底书转换为正式的 DOCX 格式，包含附图渲染和质量验证。
+你正在调用专利交底书 Markdown 转 DOCX 转换命令。本命令将已有的 Markdown 格式交底书转换为正式的 DOCX 格式。
 
 ## 执行步骤
 
@@ -36,247 +36,198 @@ arguments:
 
 ### 2. 环境检查
 
-在开始转换前，检查所有依赖项。
-
-**步骤 2.1：检查 Python 环境**
+**步骤 2.1：检查 pandoc 是否安装**
 
 ```bash
-python --version
-```
-
-要求：Python >= 3.7
-
-**步骤 2.2：检查 python-docx 库**
-
-```bash
-python -c "import docx; print(docx.__version__)"
+pandoc --version
 ```
 
 如果未安装，提供安装指导：
 ```bash
-pip install python-docx
+# macOS
+brew install pandoc
+
+# Linux
+sudo apt-get install pandoc
+
+# Windows
+# 从 https://pandoc.org/installing.html 下载安装程序
 ```
 
-**步骤 2.3：检查字体**
+**步骤 2.2：检查 DOCX 模板**
 
-运行字体检查脚本：
+确认模板文件是否存在：
+- 模板路径：`skills/patent-disclosure-writer/templates/发明、实用新型专利申请交底书 模板.docx`
+
+如果模板存在，使用自定义参考文档：
 ```bash
-python .claude/scripts/docx_conversion/font_utils.py
+pandoc "{markdown_file}" -o "{output_docx}" --reference-doc="{template_path}"
 ```
 
-检查思源黑体 CN 字体是否已安装。
-
-如果未安装，提供安装指导：
-```
-❌ 系统未安装思源黑体 CN 字体
-
-💡 解决方法：
-
-1. 下载思源黑体（Source Han Sans）字体
-   访问: https://github.com/adobe-fonts/source-han-sans/releases
-   下载: SourceHanSansSC.zip (简体中文版本)
-
-2. 安装字体
-
-   Windows: 右键字体文件，选择"安装"
-   macOS: 双击字体文件，点击"安装字体"
-   Linux: 复制到 ~/.fonts/，运行 fc-cache -fv
-```
-
-**步骤 2.4：检查 mermaid-cli**
-
+如果模板不存在，使用默认格式：
 ```bash
-mmdc --version
+pandoc "{markdown_file}" -o "{output_docx}"
 ```
 
-如果未安装，提供安装指导：
+### 3. 执行转换
+
+使用 pandoc 进行转换：
+
+**基础转换**：
 ```bash
-npm install -g @mermaid-js/mermaid-cli
+pandoc "{markdown_file_path}" \
+  -o "{output_dir}/专利申请技术交底书_{发明名称}.docx" \
+  --from=markdown+raw_html \
+  --toc \
+  --toc-depth=3
 ```
 
-**步骤 2.5：检查 DOCX 模板**
-
-确认模板文件存在：
-`skills/patent-disclosure-writer/templates/发明、实用新型专利申请交底书 模板.docx`
-
-### 3. Markdown 解析
-
-使用 Bash 工具执行 Markdown 解析脚本：
-
+**使用模板的转换**（如果模板存在）：
 ```bash
-python .claude/scripts/docx_conversion/markdown_parser.py "{markdown_file_path}" "{output_dir}/parsed_sections.json"
+pandoc "{markdown_file_path}" \
+  -o "{output_dir}/专利申请技术交底书_{发明名称}.docx" \
+  --from=markdown+raw_html \
+  --reference-doc="skills/patent-disclosure-writer/templates/发明、实用新型专利申请交底书 模板.docx" \
+  --toc \
+  --toc-depth=3
 ```
 
-**预期输出**：
-- `parsed_sections.json`：包含章节结构的 JSON 文件
-- 解析统计信息（标题、章节数量、验证结果）
+### 4. 附图处理（可选）
 
-**验证**：
-- 检查 `validation.is_complete` 是否为 `true`
-- 确认包含7个主要章节和第4章节的3个子项
+如果 Markdown 文件中包含 Mermaid 代码块：
 
-### 4. DOCX 生成
+**选项 A：提示用户使用预渲染图片**
+```
+检测到 Markdown 文件中包含 Mermaid 图表。
 
-使用 Bash 工具执行 DOCX 生成脚本：
+建议：
+1. 使用 Mermaid Live Editor (https://mermaid.live) 渲染图表为 PNG
+2. 在 Markdown 中替换 Mermaid 代码块为图片引用
+3. 重新运行转换命令
 
+或者使用高级转换功能（需要 Python 环境，见下方说明）。
+```
+
+**选项 B：提供 Python 脚本说明**
+
+如果用户需要自动处理 Mermaid 图表，说明高级功能需要 Python 环境：
+```
+高级功能说明：
+- 完整的 Mermaid 图表渲染需要 Python 脚本支持
+- 需要安装：python-docx, mermaid-cli
+- 脚本位置：.claude/scripts/docx_conversion/
+- 当前状态：开发中
+
+如需此功能，请参考项目文档或联系开发者。
+```
+
+### 5. 验证输出
+
+检查生成的 DOCX 文件：
 ```bash
-python .claude/scripts/docx_conversion/docx_generator.py \
-  "{output_dir}/parsed_sections.json" \
-  "skills/patent-disclosure-writer/templates/发明、实用新型专利申请交底书 模板.docx" \
-  "{output_dir}/专利申请技术交底书_{发明名称}.docx"
+# 检查文件是否存在
+ls -lh "{output_dir}/专利申请技术交底书_{发明名称}.docx"
 ```
 
-**预期输出**：
-- `专利申请技术交底书_{发明名称}.docx`：生成的 DOCX 文件
-- 生成统计信息（段落数、章节填充数、字体应用）
-
-### 5. 附图渲染和插入（可选）
-
-如果 Markdown 文件中包含 Mermaid 代码块（附图），执行附图渲染和插入：
-
-**步骤 5.1：检查是否存在附图**
-
-检查 `10_附图说明.md` 文件或 Markdown 中的 Mermaid 代码块。
-
-**步骤 5.2：渲染 Mermaid 图表**
-
-使用 Bash 工具执行附图插入脚本：
-
-```bash
-python .claude/scripts/docx_conversion/diagram_inserter.py \
-  "{markdown_file_path}" \
-  "{output_dir}/专利申请技术交底书_{发明名称}.docx" \
-  "{output_dir}/10_附图说明.md" \
-  "{output_dir}/diagram_images"
-```
-
-**预期输出**：
-- 渲染的图片文件（PNG格式，保存在 `{output_dir}/diagram_images/`）
-- 修改后的 DOCX 文件（包含插入的图片）
-- 附图插入报告（JSON格式）
-
-### 6. DOCX 验证
-
-使用 Bash 工具执行 DOCX 验证脚本：
-
-```bash
-python .claude/scripts/docx_conversion/docx_validator.py \
-  "{output_dir}/专利申请技术交底书_{发明名称}.docx" \
-  "{output_dir}/validation_report.json" \
-  --level strict
-```
-
-**预期输出**：
-- `validation_report.json`：验证报告
-- 总体评分（0-100）
-- 详细检查结果（6个类别）
-- 关键问题和改进建议
-
-**通过标准**：
-- 总体评分 >= 80分
-- 没有关键问题
-
-### 7. 展示结果
-
-读取验证报告并向用户展示：
+### 6. 展示结果
 
 ```markdown
 ## DOCX 转换完成
 
-**Markdown 文件**: {markdown_file_path}
-**DOCX 文件**: {output_dir}/专利申请技术交底书_{发明名称}.docx
-**验证报告**: {output_dir}/validation_report.json
+**输入文件**: {markdown_file_path}
+**输出文件**: {output_dir}/专利申请技术交底书_{发明名称}.docx
 
 ---
 
-### 验证结果总览
+### 转换详情
 
-⭐ **总体评分**: {overall_score}/100
-{validation_status}
-
----
-
-### 详细检查结果
-
-{详细检查结果}
+- 转换工具: pandoc
+- 输出格式: DOCX
+- 模板: {模板名称或"默认格式"}
 
 ---
 
-📄 生成的 DOCX 文件已通过质量检查，可以交付给专利代理机构使用。
-```
+### 后续操作
 
-**如果验证未通过**，显示详细的改进建议：
+1. 检查生成的 DOCX 文件格式
+2. 如需调整格式，可以在 DOCX 中手动修改
+3. 如包含 Mermaid 图表，需要手动渲染并插入图片
 
-```markdown
-⚠️ **验证未通过**
-
-**总体评分**: {overall_score}/100
-**通过标准**: >= 80分 且无关键问题
-
----
-
-### ⚠️ 关键问题
-
-{critical_issues}
-
----
-
-### 💡 改进建议
-
-{recommendations}
+💡 如需自动处理 Mermaid 图表和高级格式，可以使用完整版转换脚本（需要 Python 环境）。
 ```
 
 ## 错误处理
 
-### Markdown 解析失败
+### pandoc 未安装
 
 ```
-❌ Markdown 解析失败
-💡 请检查 Markdown 文件格式是否符合规范
-💡 确认包含7个章节和第4章节的3个子项
-💡 检查章节编号格式：## **1. **、## **2. ** 等
+错误: 未检测到 pandoc
+
+解决方法：
+1. 安装 pandoc:
+   - macOS: brew install pandoc
+   - Linux: sudo apt-get install pandoc
+   - Windows: https://pandoc.org/installing.html
+
+2. 验证安装:
+   pandoc --version
 ```
 
-### DOCX 生成失败
+### Markdown 文件不存在
 
 ```
-❌ DOCX 生成失败
-💡 请检查思源黑体 CN 字体是否已安装
-💡 请检查模板文件是否存在
-💡 参考 step 2 中的安装指导
+错误: 找不到指定的 Markdown 文件: {markdown_file}
+
+请检查：
+1. 文件路径是否正确
+2. 文件扩展名是否为 .md
+3. 是否在正确的目录中
 ```
 
-### mermaid-cli 未安装
+### 转换失败
 
 ```
-❌ 附图渲染失败：mermaid-cli 未安装
+错误: DOCX 转换失败
 
-💡 解决方法：
+可能原因：
+1. Markdown 文件格式不正确
+2. 包含不兼容的语法
+3. 输出目录不可写
 
-1. 安装 Node.js（如果未安装）
-   访问: https://nodejs.org/
-
-2. 安装 mermaid-cli
-   npm install -g @mermaid-js/mermaid-cli
-
-3. 验证安装
-   mmdc --version
-```
-
-### DOCX 验证未通过
-
-```
-❌ DOCX 验证未通过
-💡 请查看验证报告中的详细问题
-💡 根据改进建议修复问题或重新生成
+解决方法：
+1. 检查 Markdown 文件语法
+2. 尝试简化 Markdown 内容
+3. 检查输出目录权限
 ```
 
 ## 注意事项
 
-1. **字体要求**：必须安装思源黑体 CN 字体，否则生成的 DOCX 字体会不正确
-2. **Mermaid 渲染**：需要安装 mermaid-cli，附图才能正确渲染
-3. **模板文件**：确保 DOCX 模板文件存在于正确位置
-4. **文件编码**：Markdown 文件必须使用 UTF-8 编码
+1. **Mermaid 图表**：pandoc 不支持直接渲染 Mermaid，需要手动处理
+2. **格式限制**：基础转换使用默认样式，高级格式需要使用模板
+3. **字体**：pandoc 使用系统默认字体，如需特定字体请使用模板或手动调整
+4. **文件编码**：确保 Markdown 文件使用 UTF-8 编码
+
+## 高级功能说明
+
+完整的高级转换功能（包含 Mermaid 渲染、字体设置、格式验证）需要 Python 环境和自定义脚本。这些脚本位于：
+
+```
+.claude/scripts/docx_conversion/
+├── markdown_parser.py    # Markdown 解析
+├── docx_generator.py     # DOCX 生成
+├── diagram_inserter.py   # 附图渲染和插入
+├── docx_validator.py     # 格式验证
+└── font_utils.py         # 字体工具
+```
+
+**当前状态**：开发中
+
+**如需使用高级功能**：
+1. 确保安装 Python 3.7+
+2. 安装依赖：`pip install python-docx`
+3. 安装 mermaid-cli：`npm install -g @mermaid-js/mermaid-cli`
+4. 安装思源黑体 CN 字体
+5. 等待脚本发布或参考项目文档自行实现
 
 ## 输出文件
 
@@ -284,7 +235,4 @@ python .claude/scripts/docx_conversion/docx_validator.py \
 
 | 文件 | 说明 |
 |------|------|
-| `专利申请技术交底书_{发明名称}.docx` | 正式的 DOCX 格式交底书 |
-| `parsed_sections.json` | Markdown 解析结果 |
-| `validation_report.json` | DOCX 质量验证报告 |
-| `diagram_images/` | 附图渲染图片（如果存在附图） |
+| `专利申请技术交底书_{发明名称}.docx` | 生成的 DOCX 格式交底书 |
