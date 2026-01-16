@@ -1,5 +1,5 @@
 ---
-description: 智能扫描专利章节文档，分析并补充缺失的附图（仅处理章节03-07）
+description: 智能扫描专利章节文档，分析并补充缺失的附图（仅处理章节03-07）。生成的 Mermaid 附图可使用 export_mermaid.py 导出为黑白 PNG。
 arguments:
   - name: directory
     description: 专利章节文件所在目录（默认当前目录）
@@ -10,17 +10,23 @@ arguments:
   - name: skip_confirmation
     description: 跳过用户确认，直接执行（默认false）
     required: false
+  - name: export_png
+    description: 是否同时导出黑白 PNG 图片（默认false）
+    required: false
 ---
 
 # 专利附图智能更新
 
-智能扫描专利章节文档（03-07），分析并补充缺失的附图。
+智能扫描专利章节文档（03-07），分析并补充缺失的附图。**支持将生成的 Mermaid 附图导出为符合专利审核要求的黑白 PNG 图片**。
 
 ## 快速开始
 
 ```bash
-# 补充缺失的附图
+# 补充缺失的附图（Mermaid 格式）
 /patent-update-diagrams
+
+# 补充缺失的附图，并同时导出黑白 PNG
+/patent-update-diagrams export_png=true
 
 # 指定目录
 /patent-update-diagrams directory="./patent_chapters"
@@ -48,6 +54,7 @@ arguments:
 | `directory` | 否 | 章节文件所在目录，默认当前目录 |
 | `force_regenerate` | 否 | 是否强制重新生成所有附图，默认 false |
 | `skip_confirmation` | 否 | 跳过用户确认直接执行，默认 false |
+| `export_png` | 否 | 是否同时导出黑白 PNG 图片，默认 false |
 
 ## 执行步骤
 
@@ -84,6 +91,41 @@ arguments:
 - **不修改正文内容**：只插入附图
 - **附图编号全局连续**：确保从 1 开始连续
 - **Mermaid 格式**：生成的附图使用 Mermaid 语法
+
+## 黑白 PNG 导出
+
+本命令可以同时将生成的 Mermaid 附图导出为黑白 PNG 图片：
+
+### 导出效果
+
+- ✅ 纯黑白配色（线条黑、文字黑、背景白）
+- ✅ 符合专利局审核要求
+- ✅ 适合打印和正式提交
+- ✅ 高分辨率，保持清晰度
+
+### 手动导出
+
+如果需要在更新后单独导出黑白附图：
+
+```bash
+# 导出单个章节的附图
+python .claude/skills/patent-disclosure-writer/scripts/export_mermaid.py \
+  --markdown "05_技术方案.md" \
+  --output-dir figures/
+
+# 批量导出所有章节的附图
+python .claude/skills/patent-disclosure-writer/scripts/export_mermaid.py \
+  --dir . \
+  --pattern "0[3-7]_*.md"
+```
+
+### 前置要求
+
+使用黑白导出功能需要安装 mmdc：
+
+```bash
+npm install -g @mermaid-js/mermaid-cli
+```
 
 ## 错误处理
 

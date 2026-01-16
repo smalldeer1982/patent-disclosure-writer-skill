@@ -1,0 +1,31 @@
+{
+  "theme": "base",
+  "themeVariables": {
+    "primaryColor": "#FFFFFF",
+    "primaryTextColor": "#000000",
+    "primaryBorderColor": "#000000",
+    "lineColor": "#000000",
+    "secondaryColor": "#FFFFFF",
+    "tertiaryColor": "#F5F5F5",
+    "background": "#FFFFFF",
+    "mainBkg": "#FFFFFF",
+    "nodeBorder": "#000000",
+    "nodeTextColor": "#000000",
+    "actorBkg": "#FFFFFF",
+    "actorBorder": "#000000",
+    "actorTextColor": "#000000",
+    "actorLineColor": "#000000",
+    "signalColor": "#000000",
+    "signalTextColor": "#000000",
+    "labelBoxBkgColor": "#FFFFFF",
+    "labelBoxBorderColor": "#000000",
+    "labelTextColor": "#000000",
+    "loopTextColor": "#000000",
+    "noteBorderColor": "#000000",
+    "noteBkgColor": "#F5F5F5",
+    "noteTextColor": "#000000",
+    "activationBorderColor": "#000000",
+    "activationBkgColor": "#FFFFFF",
+    "sequenceNumberColor": "#000000"
+  }
+}

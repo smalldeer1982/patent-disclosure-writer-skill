@@ -91,6 +91,9 @@ python .claude/skills/patent-disclosure-writer/scripts/validate_mermaid.py
 # 检查附图编号连续性
 python .claude/skills/patent-disclosure-writer/scripts/check_figures.py
 
+# 导出 Mermaid 图表为黑白 PNG（符合专利审核要求）
+python .claude/skills/patent-disclosure-writer/scripts/export_mermaid.py --input diagram.mmd --output diagram.png
+
 # 管理生成状态
 python .claude/skills/patent-disclosure-writer/scripts/state_manager.py --status
 
@@ -333,6 +336,7 @@ patent-disclosure-writer-skill/
 
 | 版本 | 日期 | 变更说明 |
 |------|------|----------|
+| 2.1.0 | 2025-01-16 | 添加 Mermaid 黑白导出功能，符合专利审核要求（纯黑白、白色背景） |
 | 2.0.0 | 2025-01-15 | 添加5人专家团队审核系统，支持分阶段审核、投票机制、争议解决 |
 | 1.1.0 | 2025-01-14 | 添加验证脚本、状态管理、演进性分析，Timelessness 评分 8/10 |
 | 1.0.0 | 2025-01-14 | 初始版本 |
