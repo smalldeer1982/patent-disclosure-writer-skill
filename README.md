@@ -46,6 +46,8 @@
 
 ### 方式一：作为项目级技能
 
+> claude --dangerously-skip-permissions --plugin-dir C:\WorkSpace\agent\patent-disclosure-writer-skill
+
 1. 将本仓库复制到你的项目中
 2. 确保 `.claude/skills/` 目录存在
 3. 在 Claude Code 中使用时，技能会自动加载

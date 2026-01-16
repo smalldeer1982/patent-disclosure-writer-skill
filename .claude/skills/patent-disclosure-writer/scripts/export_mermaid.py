@@ -73,25 +73,40 @@ class MermaidExporter:
 
     def __init__(self,
                  theme_config: Path = None,
-                 background: str = "white"):
+                 style_css: Path = None,
+                 background: str = "white",
+                 width: int = 2000):
         """
         初始化导出器
 
         Args:
             theme_config: 黑白主题配置文件路径
+            style_css: 黑白样式 CSS 文件路径
             background: 背景颜色 (默认: white)
+            width: 图片宽度像素 (默认: 2000，高度自动按比例)
         """
+        script_dir = Path(__file__).parent.parent
+
         if theme_config is None:
             # 默认使用技能自带的黑白主题配置
-            script_dir = Path(__file__).parent.parent
             theme_config = script_dir / "templates" / "mermaid-bw-theme.json"
 
+        if style_css is None:
+            # 默认使用技能自带的黑白样式 CSS
+            style_css = script_dir / "templates" / "mermaid-bw-style.css"
+
         self.theme_config = Path(theme_config)
+        self.style_css = Path(style_css)
         self.background = background
+        self.width = width
 
         # 验证主题配置文件存在
         if not self.theme_config.exists():
             raise FileNotFoundError(f"主题配置文件不存在: {self.theme_config}")
+
+        # 验证 CSS 文件存在
+        if not self.style_css.exists():
+            raise FileNotFoundError(f"样式文件不存在: {self.style_css}")
 
     def export_file(self,
                    input_file: Path,
@@ -119,7 +134,9 @@ class MermaidExporter:
             "-i", str(input_file),
             "-o", str(output_file),
             "-c", str(self.theme_config),
-            "-b", self.background
+            "-C", str(self.style_css),  # 添加 CSS 样式文件
+            "-b", self.background,
+            "-w", str(self.width)  # 添加宽度参数
         ]
 
         try:
@@ -309,10 +326,21 @@ Exit codes:
         help="黑白主题配置文件路径 (默认使用内置配置)"
     )
     parser.add_argument(
+        "--css",
+        type=str,
+        help="黑白样式 CSS 文件路径 (默认使用内置配置)"
+    )
+    parser.add_argument(
         "--background", "-b",
         type=str,
         default="white",
         help="背景颜色 (默认: white)"
+    )
+    parser.add_argument(
+        "--width", "-w",
+        type=int,
+        default=2000,
+        help="图片宽度像素 (默认: 2000，高度自动按比例)"
     )
 
     args = parser.parse_args()
@@ -337,7 +365,8 @@ Exit codes:
     # 创建导出器
     try:
         theme_config = Path(args.theme) if args.theme else None
-        exporter = MermaidExporter(theme_config, args.background)
+        style_css = Path(args.css) if args.css else None
+        exporter = MermaidExporter(theme_config, style_css, args.background, args.width)
     except FileNotFoundError as e:
         print(f"错误: {e}", file=sys.stderr)
         sys.exit(20)

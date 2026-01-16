@@ -1,0 +1,403 @@
+/**
+ * Mermaid 黑白样式强制覆盖
+ * 确保所有图表元素都使用纯黑白配色，符合专利审核要求
+ */
+
+/* ==================== 通用样式 ==================== */
+
+/* 根元素 - 确保整个图表背景为白色 */
+.mermaid, #mermaid, svg {
+    background-color: #FFFFFF !important;
+}
+
+/* 所有文本 */
+text, tspan {
+    fill: #000000 !important;
+    font-family: 'Microsoft YaHei', 'SimHei', 'Arial', sans-serif !important;
+}
+
+/* ==================== 流程图节点 ==================== */
+
+/* 所有节点形状 */
+.node rect,
+.node circle,
+.node ellipse,
+.node polygon,
+.node path,
+.node .node-container {
+    fill: #FFFFFF !important;
+    stroke: #000000 !important;
+    stroke-width: 1.5px !important;
+}
+
+/* 节点文本 */
+.node text,
+.node .label {
+    fill: #000000 !important;
+    font-weight: normal !important;
+}
+
+/* ==================== 连接线 ==================== */
+
+/* 边路径 */
+.edgePath .path,
+.edgePath path,
+.edgePath,
+.flowchart-link {
+    stroke: #000000 !important;
+    stroke-width: 1.5px !important;
+    fill: none !important;
+}
+
+/* 边标签 */
+.edgeLabel,
+.edgeLabel text,
+.edgeLabel .label {
+    background-color: #FFFFFF !important;
+    fill: #000000 !important;
+}
+
+/* ==================== 子图/集群 ==================== */
+
+.cluster rect,
+.cluster .cluster-rect,
+.subgraph rect {
+    fill: #F5F5F5 !important;
+    stroke: #000000 !important;
+    stroke-width: 1.5px !important;
+    stroke-dasharray: 5, 5 !important;
+}
+
+.cluster text,
+.subgraph text {
+    fill: #000000 !important;
+}
+
+/* ==================== 序列图 ==================== */
+
+/* 参与者 - 最强覆盖 */
+.actor,
+.actor rect,
+.actor .actor-box,
+.actor-man,
+.actor-man rect,
+.actor-0,
+.actor-1,
+.actor-2,
+.actor-3,
+.actor-4,
+.actor-5,
+.actor > *,
+.actor rect,
+.actor polygon {
+    fill: #FFFFFF !important;
+    stroke: #000000 !important;
+    stroke-width: 2px !important;
+}
+
+.actor text,
+.actor-man text,
+.actor .actor-text,
+.actor > text,
+.actor text.actor-text {
+    fill: #000000 !important;
+}
+
+/* 信号线 - 最强覆盖 */
+.signal line,
+.signal-line,
+.messageLine0,
+.messageLine1,
+.messageLine,
+#messageLine0,
+#messageLine1,
+.messageLine,
+.signal {
+    stroke: #000000 !important;
+    stroke-width: 2px !important;
+}
+
+.signal text,
+.signalText,
+.messageText,
+.messageText > text,
+.signalLabel,
+.signalLabel > text {
+    fill: #000000 !important;
+    background-color: #FFFFFF !important;
+}
+
+/* 激活框 - 最强覆盖 */
+.activation rect,
+.activation .activation-box,
+.activation,
+#activation {
+    fill: #FFFFFF !important;
+    stroke: #000000 !important;
+    stroke-width: 1.5px !important;
+}
+
+/* 序列图背景框 */
+.sequence,
+.sequence > svg,
+#sequencediagram {
+    background-color: #FFFFFF !important;
+}
+
+/* ==================== 注释 ==================== */
+
+.note,
+.note rect,
+.note .note-box {
+    fill: #F5F5F5 !important;
+    stroke: #000000 !important;
+    stroke-width: 1px !important;
+}
+
+.note text,
+.note .note-text {
+    fill: #000000 !important;
+}
+
+/* ==================== 循环框 ==================== */
+
+.loop rect,
+.loop .loop-box {
+    fill: #F5F5F5 !important;
+    stroke: #000000 !important;
+    stroke-width: 1px !important;
+    stroke-dasharray: 3, 3 !important;
+}
+
+.loopText,
+.loop .loop-text {
+    fill: #000000 !important;
+}
+
+/* ==================== 分支条件 ==================== */
+
+.label .label-box,
+.label rect {
+    fill: #FFFFFF !important;
+    stroke: #000000 !important;
+}
+
+.label text,
+.label .label-text {
+    fill: #000000 !important;
+}
+
+/* ==================== 箭头标记 ==================== */
+
+marker path,
+marker#arrowhead path,
+marker#arrowhead2 path,
+marker#crosshead path,
+.mermaid .marker path {
+    fill: #000000 !important;
+    stroke: #000000 !important;
+}
+
+/* ==================== 类图样式覆盖 ==================== */
+
+.classGroup .title,
+.classGroup text,
+.classLabel .label {
+    fill: #000000 !important;
+}
+
+.classGroup rect,
+.classBox rect {
+    fill: #FFFFFF !important;
+    stroke: #000000 !important;
+}
+
+.relation line {
+    stroke: #000000 !important;
+}
+
+.cardinality text,
+.cardinality {
+    fill: #000000 !important;
+}
+
+/* ==================== 状态图 ==================== */
+
+.stateCircle circle,
+.stateCircle .state-rect {
+    fill: #FFFFFF !important;
+    stroke: #000000 !important;
+}
+
+.stateGroup text,
+.state-label {
+    fill: #000000 !important;
+}
+
+.transition line,
+.transition path {
+    stroke: #000000 !important;
+}
+
+/* ==================== 时序图 ==================== */
+
+.messageLine0,
+.messageLine0,
+.messageLine1,
+.messageLine1 {
+    stroke: #000000 !important;
+}
+
+#arrowhead path,
+#arrowhead2 path {
+    fill: #000000 !important;
+}
+
+/* ==================== 概念图 ==================== */
+
+.entityBox rect {
+    fill: #FFFFFF !important;
+    stroke: #000000 !important;
+}
+
+.entityBox text,
+.entityLabel {
+    fill: #000000 !important;
+}
+
+.reationshipLine {
+    stroke: #000000 !important;
+}
+
+/* ==================== 甘特图 ==================== */
+
+.task rect,
+.task .task-box {
+    fill: #FFFFFF !important;
+    stroke: #000000 !important;
+}
+
+.task text {
+    fill: #000000 !important;
+}
+
+.grid line,
+.grid .grid-line {
+    stroke: #CCCCCC !important;
+    stroke-width: 0.5px !important;
+}
+
+/* ==================== 时间轴 ==================== */
+
+.timeline .axis line,
+.timeline .axis path {
+    stroke: #000000 !important;
+}
+
+.timeline .item rect {
+    fill: #FFFFFF !important;
+    stroke: #000000 !important;
+}
+
+/* ==================== 饼图 ==================== */
+
+.pie-circle circle,
+.pie .slice {
+    stroke: #000000 !important;
+}
+
+.pie text,
+.pie .label-text {
+    fill: #000000 !important;
+}
+
+/* ==================== 通用覆盖 ==================== */
+
+/* 确保所有矩形、圆形、椭圆、多边形都是黑白 */
+rect:not(.edgeLabel):not(.cluster):not(.loop):not(.note) {
+    fill: #FFFFFF !important;
+    stroke: #000000 !important;
+}
+
+circle {
+    fill: #FFFFFF !important;
+    stroke: #000000 !important;
+}
+
+ellipse {
+    fill: #FFFFFF !important;
+    stroke: #000000 !important;
+}
+
+polygon {
+    fill: #FFFFFF !important;
+    stroke: #000000 !important;
+}
+
+path:not(.edgePath):not(.flowchart-link) {
+    fill: #FFFFFF !important;
+    stroke: #000000 !important;
+}
+
+/* 确保所有线条都是黑色 */
+line {
+    stroke: #000000 !important;
+}
+
+/* 最终背景覆盖 */
+svg {
+    background-color: #FFFFFF !important;
+}
+
+/* ==================== 超级强制覆盖 ==================== */
+/* 确保没有任何颜色逃脱 */
+
+/* 所有填充 - 纯白 */
+rect:not(.edgeLabel):not(.cluster):not(.loop):not(.note),
+circle:not(.edgeLabel),
+ellipse:not(.edgeLabel),
+polygon:not(.edgeLabel),
+path:not(.edgePath):not(.flowchart-link):not(.marker):not(marker *) {
+    fill: #FFFFFF !important;
+}
+
+/* 所有可能带颜色的类 */
+.actor0, .actor1, .actor2, .actor3, .actor4, .actor5,
+.messageLine0, .messageLine1, .messageLine2, .messageLine3,
+.note, .loop, .alt,
+.section, .include, .exclude, .par {
+    fill: #FFFFFF !important;
+    stroke: #000000 !important;
+}
+
+/* Mermaid 生成的动态类覆盖 */
+[class*="actor"],
+[class*="message"],
+[class*="signal"],
+[class*="activation"],
+[class*="note"] {
+    fill: #FFFFFF !important;
+    stroke: #000000 !important;
+}
+
+/* 确保没有渐变 */
+* {
+    background: none !important;
+    background-image: none !important;
+    background-color: #FFFFFF !important;
+}
+
+rect, circle, ellipse, polygon, path {
+    background: #FFFFFF !important;
+}
+
+/* 最终确保 - 所有形状都是黑白填充 */
+.mermaid rect,
+.mermaid circle,
+.mermaid ellipse,
+.mermaid polygon,
+.mermaid path,
+.mermaid line {
+    fill: #FFFFFF !important;
+    stroke: #000000 !important;
+}
