@@ -33,3 +33,4 @@ example_things/paten/
 nul
 **/__pycache__
 .claude/settings.json*
+.claude/hooks/
