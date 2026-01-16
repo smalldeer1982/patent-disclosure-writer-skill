@@ -32,3 +32,4 @@ example_things/paten/
 /.claude/skills/skillforge
 nul
 **/__pycache__
+.claude/settings.json*
